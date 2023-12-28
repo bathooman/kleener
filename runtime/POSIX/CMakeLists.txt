@@ -18,6 +18,7 @@ set(SRC_FILES
         misc.c
         selinux.c
         stubs.c
+        Protocols/socket_models.c
         )
 
 # Build it

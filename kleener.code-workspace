@@ -1,0 +1,23 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"assert.h": "c",
+			"klee.h": "c",
+			"dtls_monitors.h": "c",
+			"stdlib.h": "c",
+			"stdbool.h": "c",
+			"dtls_socket_model.h": "c",
+			"dtls_records.h": "c",
+			"dtls_states.h": "c",
+			"helper.h": "c",
+			"quic_states.h": "c",
+			"quic_socket_model.h": "c",
+			"datagram.h": "c"
+		}
+	}
+}
