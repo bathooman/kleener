@@ -32,6 +32,10 @@ void klee_error(const char *msg, ...)
 /// newline on stderr and to messages.txt.
 void klee_message(const char *msg, ...) __attribute__((format(printf, 1, 2)));
 
+/// Print "KLEENER: " followed by the msg in printf format and a
+/// newline on stderr and to warnings.txt.
+void kleener_message(const char *msg, ...) __attribute__((format(printf, 1, 2)));
+
 /// Print "KLEE: " followed by the msg in printf format and a
 /// newline to messages.txt.
 void klee_message_to_file(const char *msg, ...)

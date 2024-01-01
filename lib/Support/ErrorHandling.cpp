@@ -34,6 +34,7 @@ static const char *warningPrefix = "WARNING";
 static const char *warningOncePrefix = "WARNING ONCE";
 static const char *errorPrefix = "ERROR";
 static const char *notePrefix = "NOTE";
+static const char *kleenerInfoPrefix = "INFO";
 
 namespace klee {
 cl::OptionCategory MiscCat("Miscellaneous options", "");
@@ -92,9 +93,19 @@ static void klee_vfmessage(FILE *fp, const char *pfx, const char *msg,
       fdos.changeColor(llvm::raw_ostream::WHITE,
                        /*bold=*/true,
                        /*bg=*/false);
+    
+    // KLEENER Info
+    if (shouldSetColor(pfx, msg, kleenerInfoPrefix))
+      fdos.changeColor(llvm::raw_ostream::BLUE,
+                       /*bold=*/true,
+                       /*bg=*/false);
   }
 
-  fdos << "KLEE: ";
+  if (pfx && strcmp(pfx, kleenerInfoPrefix) == 0)
+    fdos << "KLEENER: ";
+  else
+    fdos << "KLEE: ";
+
   if (pfx)
     fdos << pfx << ": ";
 
@@ -135,6 +146,14 @@ void klee::klee_message(const char *msg, ...) {
   va_list ap;
   va_start(ap, msg);
   klee_vmessage(NULL, false, msg, ap);
+  va_end(ap);
+}
+
+/* Messages related to KLEENER*/
+void klee::kleener_message(const char *msg, ...) {
+  va_list ap;
+  va_start(ap, msg);
+  klee_vmessage(kleenerInfoPrefix, false, msg, ap);
   va_end(ap);
 }
 
