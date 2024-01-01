@@ -287,6 +287,17 @@ namespace {
            cl::desc("Link the llvm libc++ library into the bitcode (default=false)"),
            cl::init(false),
            cl::cat(LinkCat));
+
+  /* KLEENER-Specific options*/
+  cl::OptionCategory KleenerCat("KLEENER Options",
+                                "These options are added as part of KLEENER Developments");
+  cl::list<std::string>
+  FunctionRemover("func-names",
+              cl::CommaSeparated,
+              cl::desc("Remove the function body from the loaded bitcode. "
+                       "The lib containing removed functions should be provided using the '--load=' option. "
+                       "Names are separated by comma (,)"),
+              cl::cat(KleenerCat));
 }
 
 namespace klee {
@@ -1219,6 +1230,32 @@ int main(int argc, char **argv, char **envp) {
   }
 
   llvm::Module *mainModule = M.get();
+
+  // In this part if any function is specified by the FunctionRemover, 
+  // we delete the body of that function from the bitcode. This is done
+  // to make every call to that function treated as an external call.
+  // We indirectly take the function out of the scope of the experiment
+  if (!FunctionRemover.empty())
+  {
+    std::set<std::string> functions;
+
+    // Store the name of functions in a set 
+    for(auto name:FunctionRemover)
+    {
+      name.erase(remove_if(name.begin(), name.end(), isspace), name.end());
+      functions.insert(name);
+    }
+
+    // Remove the body of the functions exist in the set 
+    for (auto & f : *mainModule)
+    {
+      if (functions.find(f.getName().str()) != functions.end())
+      {
+        f.deleteBody();
+        kleener_message("The body for function '%s' is removed from the bitcode", f.getName().str().c_str());
+      }
+    }
+  }
 
   const std::string &module_triple = mainModule->getTargetTriple();
   std::string host_triple = llvm::sys::getDefaultTargetTriple();
