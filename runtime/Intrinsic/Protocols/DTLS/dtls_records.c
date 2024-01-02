@@ -728,7 +728,7 @@ int serialize_record(uint8_t **out_buffer, RECORD *rec, size_t rcvsize, RECORD *
         memcpy(*out_buffer, rec->RES.application_data.encrypted_message, record_length);
         *out_buffer += record_length; // Get past the encrypted message
     }
-    else if (rec->content_type == Alert_REC)
+    else if (shadow_rec->content_type == Alert_REC)
     {
         **out_buffer = rec->RES.alert.level;
         *out_buffer += 1; // Get past the Alert Level
