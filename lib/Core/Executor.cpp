@@ -3811,6 +3811,39 @@ void Executor::terminateStateOnError(ExecutionState &state,
     haltExecution = true;
 }
 
+void Executor::terminateStateOnResponse(ExecutionState &state,
+                                     const llvm::Twine &responset,
+                                     StateTerminationType terminationType,
+                                     const llvm::Twine &info,
+                                     const char *suffix) {
+  std::string resp = responset.str();
+  Instruction * lastInst;
+  const InstructionInfo &ii = getLastNonKleeInternalInstruction(state, &lastInst);
+
+  kleener_message("RESPONSE: %s", resp.c_str());
+
+  std::string MsgString;
+  llvm::raw_string_ostream msg(MsgString);
+  msg << "Received Response: " << resp << '\n';
+  if (ii.file != "") {
+    msg << "File: " << ii.file << '\n'
+        << "Line: " << ii.line << '\n'
+        << "State: " << state.getID() << '\n';
+  }
+
+  std::string info_str = info.str();
+  if (!info_str.empty())
+    msg << "Info: \n" << info_str;
+
+  const std::string ext = terminationTypeFileExtension(terminationType);
+
+  const char * file_suffix = suffix ? suffix : ext.c_str();
+  interpreterHandler->processTestCase(state, msg.str().c_str(), file_suffix);
+
+  terminateState(state);
+
+}
+
 void Executor::terminateStateOnExecError(ExecutionState &state,
                                          const llvm::Twine &message,
                                          StateTerminationType reason) {

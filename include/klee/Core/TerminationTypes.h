@@ -71,7 +71,8 @@ enum class StateTerminationClass : std::uint8_t {
   TTMARK(EARLYALGORITHM, 71U)                                                  \
   TTYPE(SilentExit, 80U, "")                                                   \
   TTMARK(EARLYUSER, 80U)                                                       \
-  TTMARK(END, 80U)
+  TTMARK(END, 80U)                                                             \
+  TTYPE(ReportResponse, 90U, "resp")
 
 
 ///@brief Reason an ExecutionState got terminated.

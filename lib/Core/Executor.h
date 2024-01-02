@@ -444,6 +444,13 @@ private:
                                     const llvm::Twine &longMessage = "",
                                     const char *suffix = nullptr);
 
+  /// Call Response handler and terminate state
+  void terminateStateOnResponse(ExecutionState &state,
+                                     const llvm::Twine &responset,
+                                     StateTerminationType terminationType,
+                                     const llvm::Twine &info = "",
+                                     const char *suffix = nullptr);
+
   /// Call error handler and terminate state in case of program errors
   /// (e.g. free()ing globals, out-of-bound accesses)
   void terminateStateOnProgramError(ExecutionState &state,

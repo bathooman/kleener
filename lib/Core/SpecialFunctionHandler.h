@@ -143,6 +143,7 @@ namespace klee {
     HANDLER(handleRange);
     HANDLER(handleRealloc);
     HANDLER(handleReportError);
+    HANDLER(handleReportResponse);
     HANDLER(handleRevirtObjects);
     HANDLER(handleSetForking);
     HANDLER(handleSilentExit);

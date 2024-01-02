@@ -86,6 +86,7 @@ static SpecialFunctionHandler::HandlerInfo handlerInfo[] = {
   addDNR("klee_abort", handleAbort),
   addDNR("klee_silent_exit", handleSilentExit),
   addDNR("klee_report_error", handleReportError),
+  addDNR("klee_report_response", handleReportResponse),
   add("calloc", handleCalloc, true),
   add("free", handleFree, false),
   add("klee_assume", handleAssume, false),
@@ -337,6 +338,19 @@ void SpecialFunctionHandler::handleReportError(
   executor.terminateStateOnProgramError(
       state, readStringAtAddress(state, arguments[2]),
       StateTerminationType::ReportError, "",
+      readStringAtAddress(state, arguments[3]).c_str());
+}
+
+void SpecialFunctionHandler::handleReportResponse(
+    ExecutionState &state, KInstruction *target,
+    std::vector<ref<Expr>> &arguments) {
+  assert(arguments.size() == 4 &&
+         "invalid number of arguments to klee_report_error");
+
+  // arguments[0,1,2,3] are file, line, message, suffix
+  executor.terminateStateOnResponse(
+      state, readStringAtAddress(state, arguments[2]),
+      StateTerminationType::ReportResponse, "",
       readStringAtAddress(state, arguments[3]).c_str());
 }
 

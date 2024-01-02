@@ -25,6 +25,17 @@ extern "C" {
    */
   void klee_define_fixed_object(void *addr, size_t nbytes);
 
+  /* klee_report_response - Report a response to the current message and terminate the current
+   * KLEE process.
+   *
+   * \arg file - The filename to report in the error message.
+   * \arg line - The line number to report in the error message.
+   * \arg response - A string representing the response.
+   * \arg suffix - The suffix to use for response files.
+   */
+  void kleener_report_response(const char *file, int line,
+                       const char *response, const char *suffix);
+
   /* klee_make_symbolic - Make the contents of the object pointer to by \arg
    * addr symbolic.
    *
