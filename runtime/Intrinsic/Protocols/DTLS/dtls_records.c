@@ -330,6 +330,35 @@ static int parse_fragment(RECORD *rec, size_t record_length)
     return 0;
 }
 
+static void parse_heartbeat(RECORD *rec, size_t record_length)
+{
+    uint8_t *msg = rec->payload;
+    rec->RES.heartbeat.type = *msg;
+    msg += 1; // Get past the type
+
+    memcpy(rec->RES.heartbeat.payload_length, msg, 2);
+    msg += 2; // Get past the payload length
+
+    size_t payload_length = byte_to_int(rec->RES.heartbeat.payload_length, 2);
+    rec->RES.heartbeat.payload = malloc(payload_length);
+    memcpy(rec->RES.heartbeat.payload, msg, payload_length);
+    msg += payload_length; // Get past the payload
+
+    /* RFC 6520 Section 4
+    The padding is random content that MUST be ignored by the
+    receiver.  The length of a HeartbeatMessage is TLSPlaintext.length
+    for TLS and DTLSPlaintext.length for DTLS.  Furthermore, the
+    length of the type field is 1 byte, and the length of the
+    payload_length is 2.  Therefore, the padding_length is
+    TLSPlaintext.length - payload_length - 3 for TLS and
+    DTLSPlaintext.length - payload_length - 3 for DTLS.  The
+    padding_length MUST be at least 16.
+    */
+    size_t padding_length = record_length - payload_length - 3;
+    rec->RES.heartbeat.padding = malloc(padding_length);
+    memcpy(rec->RES.heartbeat.padding, msg, padding_length);
+}
+
 int parse_record(const uint8_t *datagram, RECORD *rec,  size_t *off, size_t datagram_size, bool is_client_originated)
 {
     uint8_t *msg = (uint8_t *) datagram + *off;
@@ -386,6 +415,10 @@ int parse_record(const uint8_t *datagram, RECORD *rec,  size_t *off, size_t data
     {
         rec->RES.alert.level = rec->payload[0];
         rec->RES.alert.desc = rec->payload[1];
+    }
+    else if (rec->content_type == Heartbeat_REC)
+    {
+        parse_heartbeat(rec, record_length);
     }
 
     *off += msg - point_to_beginning;
@@ -546,6 +579,24 @@ static void serialize_CEV(uint8_t **out_buffer, CERTIFICATEVERIFY *rec, size_t f
     *out_buffer += signature_length; // Get past the signature
 }
 
+static void serialize_heartbeat(uint8_t **out_buffer, RECORD *rec, RECORD *shadow_rec)
+{
+    **out_buffer = rec->RES.heartbeat.type;
+    *out_buffer += 1; // Get past the type
+
+    memcpy(*out_buffer, rec->RES.heartbeat.payload_length, 2);
+    *out_buffer += 2; // Get past the payload length
+
+    size_t payload_length = byte_to_int(shadow_rec->RES.heartbeat.payload_length, 2);
+    memcpy(*out_buffer, rec->RES.heartbeat.payload, payload_length);
+    *out_buffer += payload_length;
+
+    size_t record_length = byte_to_int(shadow_rec->record_length, 2);
+    size_t padding_length = record_length - payload_length - 3;
+    memcpy(*out_buffer, rec->RES.heartbeat.padding, padding_length);
+    *out_buffer += padding_length;
+}
+
 int serialize_record(uint8_t **out_buffer, RECORD *rec, size_t rcvsize, RECORD *shadow_rec)
 {
     uint8_t *pointer_to_beginning = *out_buffer;
@@ -683,6 +734,10 @@ int serialize_record(uint8_t **out_buffer, RECORD *rec, size_t rcvsize, RECORD *
         *out_buffer += 1; // Get past the Alert Level
         **out_buffer = rec->RES.alert.desc;
         *out_buffer += 1; // Get past the Alert Desc
+    }
+    else if (shadow_rec->content_type == Heartbeat_REC)
+    {
+        serialize_heartbeat(out_buffer, rec, shadow_rec);
     }
 
     return *out_buffer - pointer_to_beginning;

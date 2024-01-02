@@ -31,7 +31,8 @@ monitor_handle set_monitor_handle(int experiment, SIDE side_to_check)
 		[handshake_length_requirement] = {is_handshake_length_valid_server, is_handshake_length_valid_client},
 		[signature_hash_algorithms_requirement] = {NULL, is_hash_sig_algorithm_equal},
 		[signature_hash_length_requirement] = {NULL, is_hash_sig_algorithm_length_valid},
-		[certificate_count_requirement] = {NULL, is_certificate_type_count_valid}
+		[certificate_count_requirement] = {NULL, is_certificate_type_count_valid},
+		[heartbleed_requirement] = {check_heartbleed_server, NULL}
     };
     const struct entry *entry = &table[experiment];
 
@@ -70,7 +71,8 @@ allowed_states set_monitor_valid_states(int experiment, SIDE side_to_check)
 		[handshake_length_requirement] = {HANDSHAKE_LAYER_SERVER_STATES, HANDSHAKE_LAYER_CLIENT_STATES},
 		[signature_hash_algorithms_requirement] = {AS_CEV_RECVD, AS_CER_RECVD},
 		[signature_hash_length_requirement] = {AS_CEV_RECVD, AS_CER_RECVD},
-		[certificate_count_requirement] = {AS_CEV_RECVD, AS_CER_RECVD}
+		[certificate_count_requirement] = {AS_CEV_RECVD, AS_CER_RECVD},
+		[heartbleed_requirement] = {AS_CFI_RECVD, AS_SFI_RECVD}
     };
     const struct entry *entry = &table[experiment];
 

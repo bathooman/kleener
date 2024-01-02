@@ -14,6 +14,8 @@ typedef struct RECORD_struct RECORD;
 #define Change_Cipher_Spec_REC 20
 #define Application_Data 23
 #define Alert_REC 21
+#define Heartbeat_REC 24
+
 // Msg Types
 #define Client_Hello_MSG 1
 #define Server_Hello_MSG 2
@@ -100,6 +102,14 @@ typedef struct
 {
     uint8_t *encrypted_message;
 }APP;
+
+typedef struct
+{
+    uint8_t type;
+    uint8_t payload_length[2];
+    uint8_t *payload;
+    uint8_t *padding;
+}HEARTBEAT;
 
 typedef struct
 {
@@ -190,6 +200,7 @@ typedef union{
     FRAGMENT *fragment;
     APP application_data;
     ALERT alert;
+    HEARTBEAT heartbeat;
 }REST;
 
 struct RECORD_struct

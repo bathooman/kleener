@@ -27,6 +27,7 @@
 #define signature_hash_algorithms_requirement 76
 #define signature_hash_length_requirement 78
 #define certificate_count_requirement 80
+#define heartbleed_requirement 82
 #define fragment_reassembly_requirement 36
 #define fragment_message_length_requirement 44
 #define fragment_message_sequence_requirement 42
@@ -107,6 +108,7 @@ void is_handshake_length_valid_client(RECORD *record, bool is_record_client_gene
 void is_hash_sig_algorithm_equal(RECORD *record, bool is_record_client_generated);
 void is_certificate_type_count_valid(RECORD *record, bool is_record_client_generated);
 void is_hash_sig_algorithm_length_valid(RECORD *record, bool is_record_client_generated);
+void check_heartbleed_server(RECORD *record, bool is_record_client_generated);
 // Fragmentation
 void is_fragment_reassembly_valid_server(RECORD *record, bool is_record_client_generated);
 void is_fragment_reassembly_valid_client(RECORD *record, bool is_record_client_generated);
