@@ -510,7 +510,7 @@ void klee_report_error(const char *file, int line,
   __emit_error(message);
 }
 
-void klee_report_response(const char *file, int line,
+void kleener_report_response(const char *file, int line,
                        const char *message, const char *suffix) {
   ;
 }
