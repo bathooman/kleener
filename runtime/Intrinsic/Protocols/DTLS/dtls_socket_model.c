@@ -128,13 +128,10 @@ int DTLS_bind_model(int sockfd, const struct sockaddr *myaddr, socklen_t addrlen
 
 	if (port == server_port)
 	{
-		kleener_log("server fd:%d", __FILE__, __LINE__, 1, sockfd);
 		server_fd = sockfd;
-		
 	}
 	else
 	{
-		printf("Client fd:%d\n", client_fd);
 		client_fd = sockfd;
 	}
 
@@ -154,14 +151,14 @@ ssize_t DTLS_recvfrom_model(int __fd, void *__buf, size_t __n, int __flags,
 	if (isfirst_server && server_fd == __fd)
 	{
 		Element *item;
-		puts("\n\nisfirst_server && server_fd == __fd\n\n");
+		// puts("\n\nisfirst_server && server_fd == __fd\n\n");
 		// MSG_DONTWAIT |
 		long recvlen = syscall(SYS_recvfrom, __fd, __buf, __n, __flags, __addr , __addr_len);
 	
 		if (recvlen < 0)
 		{
 			printf("\n[Model-log] recvfrom() failed\n");
-			_exit(-1);
+			return recvlen;
 		}
 		if (!isEmpty(recv_by_server))
 		{
@@ -171,8 +168,7 @@ ssize_t DTLS_recvfrom_model(int __fd, void *__buf, size_t __n, int __flags,
 		else
 		{
 			printf("\n[Model-log] server queue is empty!\n");
-			printf("\n[Model-log] handshake failed!\n");
-			exit(0);
+			return -1;
 		}
 
 		
@@ -197,13 +193,13 @@ ssize_t DTLS_recvfrom_model(int __fd, void *__buf, size_t __n, int __flags,
 	else if (isfirst_client && server_fd != __fd)
 	{
 		Element *item;
-		puts("\n\nisfirst_client && server_fd != __fd\n\n");
+		// puts("\n\nisfirst_client && server_fd != __fd\n\n");
 		long recvlen = syscall(SYS_recvfrom, __fd, __buf, __n, __flags, __addr, __addr_len);
 	
 		if (recvlen < 0)
 		{
 			printf("\n[Model-log] recvfrom() failed\n");
-			_exit(-1);
+			return recvlen;
 		}
 		if (!isEmpty(recv_by_client))
 		{
@@ -213,8 +209,7 @@ ssize_t DTLS_recvfrom_model(int __fd, void *__buf, size_t __n, int __flags,
 		else
 		{
 			printf("\n[Model-log] client queue is empty!\n");
-			printf("\n[Model-log] handshake failed!\n");
-			exit(0);
+			return -1;
 		}
 		
 		
@@ -239,7 +234,7 @@ ssize_t DTLS_recvfrom_model(int __fd, void *__buf, size_t __n, int __flags,
 	else if (!isfirst_server && server_fd == __fd)
 	{
 		Element *item;
-		puts("\n\n!isfirst_server && server_fd == __fd\n\n");
+		// puts("\n\n!isfirst_server && server_fd == __fd\n\n");
 		if (!isEmpty(recv_by_server))
 		{
 			item = dequeue(recv_by_server);
@@ -248,8 +243,7 @@ ssize_t DTLS_recvfrom_model(int __fd, void *__buf, size_t __n, int __flags,
 		else
 		{
 			printf("\n[Model-log] server queue is empty!\n");
-			printf("\n[Model-log] handshake failed!\n");
-			exit(0);
+			return -1;
 		}
 				
 
@@ -271,7 +265,7 @@ ssize_t DTLS_recvfrom_model(int __fd, void *__buf, size_t __n, int __flags,
 	else if (!isfirst_client && server_fd != __fd)
 	{
 		Element *item;
-		puts("\n\n!isfirst_client && server_fd != __fd\n\n");
+		// puts("\n\n!isfirst_client && server_fd != __fd\n\n");
 
 		if (!isEmpty(recv_by_client))
 		{
@@ -281,8 +275,7 @@ ssize_t DTLS_recvfrom_model(int __fd, void *__buf, size_t __n, int __flags,
 		else
 		{
 			printf("\n[Model-log] client queue is empty!\n");
-			printf("\n[Model-log] handshake failed!\n");
-			exit(0);
+			return -1;
 		}
 		
 
