@@ -793,6 +793,44 @@ static void fragment_DTLS_message(RECORD input_record, RECORD *fragmented_record
     memcpy(fragmented_records[1].RES.fragment->body.fragmented->payload, input_record.payload + FRAGMENT_HEADER_SIZE + frag1_size, frag2_size);
 }
 
+void determine_record_content(RECORD *rec, char* record_content, bool is_input)
+{
+    char content[50] = "";
+    switch (rec->content_type)
+    {
+        case Handshake_REC:
+            if (is_input)
+                sprintf(content, "[input] Handshake:%hhu - ", rec->RES.fragment->handshake_type);
+            else
+                sprintf(content, "[output] Handshake:%hhu", rec->RES.fragment->handshake_type);
+            strncat(record_content, content, 40);
+            break;
+        case Change_Cipher_Spec_REC:
+            if (is_input)
+                strncat(record_content, "[input] CCS - ", 40);
+            else
+                strncat(record_content, "[output] CCS", 40);
+            break;
+        case Alert_REC:
+            if (is_input)
+                sprintf(content, "[input] Alert:%hhu | %hhu - ", rec->RES.alert.level, rec->RES.alert.desc);
+            else
+                sprintf(content, "[output] Alert:%hhu | %hhu", rec->RES.alert.level, rec->RES.alert.desc);
+            strncat(record_content, content, 40);
+            break;
+        case Application_Data:
+            if (is_input)
+                strncat(record_content, "[input] App_data - ", 40);
+            else
+                strncat(record_content, "[output] App_data", 40);
+            break;
+        default:
+            printf("Content Type could not be determined!\n\n");
+            exit(-1);
+            break;
+    }
+}
+
 int64_t original_sequence_number = -1;
 
 /*

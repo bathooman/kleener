@@ -47,6 +47,7 @@ set(SRC_FILES
 	Protocols/DTLS/monitors/certificate-type-count.c
 	Protocols/DTLS/monitors/sighash-algorithms-length.c
 	Protocols/DTLS/monitors/heartbleed.c
+	Protocols/DTLS/monitors/input-output.c
 	Protocols/QUIC/quic_socket_model.c
 	Protocols/QUIC/quic_packets.c
 	Protocols/QUIC/quic_states.c
