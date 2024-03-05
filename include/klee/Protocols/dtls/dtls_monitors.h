@@ -28,15 +28,17 @@
 #define signature_hash_length_requirement 78
 #define certificate_count_requirement 80
 #define heartbleed_requirement 82
-#define input_output_testing 84
 #define fragment_reassembly_requirement 36
 #define fragment_message_length_requirement 44
 #define fragment_message_sequence_requirement 42
 #define extensions_length_requirement 54
+/* Differential Testing Monitors*/
+#define content_type_diff_test 100
+#define epoch_diff_test 102
+#define record_sequence_number_diff_test 104
 
-
-#define RECORD_LAYER_SERVER_STATES AS_CH0_RECVD | AS_CH2_RECVD | AS_CKE_RECVD | AS_CCE_RECVD | AS_CEV_RECVD | AS_CCC_RECVD
-#define RECORD_LAYER_CLIENT_STATES AS_HVR_RECVD | AS_SH_RECVD | AS_SCE_RECVD | AS_SKE_RECVD | AS_CER_RECVD | AS_SHD_RECVD | AS_SCC_RECVD
+#define RECORD_LAYER_SERVER_STATES AS_CH0_RECVD | AS_CH2_RECVD | AS_CKE_RECVD | AS_CCE_RECVD | AS_CEV_RECVD | AS_CCC_RECVD | AS_CFI_RECVD
+#define RECORD_LAYER_CLIENT_STATES AS_HVR_RECVD | AS_SH_RECVD | AS_SCE_RECVD | AS_SKE_RECVD | AS_CER_RECVD | AS_SHD_RECVD | AS_SCC_RECVD | AS_SFI_RECVD
 #define HANDSHAKE_LAYER_SERVER_STATES AS_CH0_RECVD | AS_CH2_RECVD | AS_CKE_RECVD | AS_CCE_RECVD | AS_CEV_RECVD
 #define HANDSHAKE_LAYER_CLIENT_STATES AS_HVR_RECVD | AS_SH_RECVD | AS_SCE_RECVD | AS_SKE_RECVD | AS_CER_RECVD | AS_SHD_RECVD
 typedef void (*monitor_handle)(RECORD *record, bool is_record_client_generated);
@@ -110,7 +112,6 @@ void is_hash_sig_algorithm_equal(RECORD *record, bool is_record_client_generated
 void is_certificate_type_count_valid(RECORD *record, bool is_record_client_generated);
 void is_hash_sig_algorithm_length_valid(RECORD *record, bool is_record_client_generated);
 void check_heartbleed_server(RECORD *record, bool is_record_client_generated);
-void inp_outp_server(RECORD *record, bool is_record_client_generated);
 // Fragmentation
 void is_fragment_reassembly_valid_server(RECORD *record, bool is_record_client_generated);
 void is_fragment_reassembly_valid_client(RECORD *record, bool is_record_client_generated);
@@ -118,4 +119,8 @@ void is_message_seq_equal_in_fragments_server(RECORD *record, bool is_record_cli
 void is_message_seq_equal_in_fragments_client(RECORD *record, bool is_record_client_generated);
 void is_message_length_equal_in_fragments_server(RECORD *record, bool is_record_client_generated);
 void is_message_length_equal_in_fragments_client(RECORD *record, bool is_record_client_generated);
+// Differential Testing Monitors
+void content_type_diff_testing_server(RECORD *record, bool is_record_client_generated);
+void epoch_diff_testing_server(RECORD *P, bool is_record_client_generated);
+void record_sequence_number_diff_testing_server(RECORD *P, bool is_record_client_generated);
 #endif // DTLS_MONITORS

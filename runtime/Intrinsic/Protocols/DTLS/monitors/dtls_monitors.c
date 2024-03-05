@@ -33,7 +33,10 @@ monitor_handle set_monitor_handle(int experiment, SIDE side_to_check)
 		[signature_hash_length_requirement] = {NULL, is_hash_sig_algorithm_length_valid},
 		[certificate_count_requirement] = {NULL, is_certificate_type_count_valid},
 		[heartbleed_requirement] = {check_heartbleed_server, NULL},
-		[input_output_testing] = {inp_outp_server, NULL}
+		/* Differential Testing Monitors*/
+		[content_type_diff_test] = {content_type_diff_testing_server, NULL},
+		[epoch_diff_test] = {epoch_diff_testing_server, NULL},
+		[record_sequence_number_diff_test] = {record_sequence_number_diff_testing_server, NULL}
     };
     const struct entry *entry = &table[experiment];
 
@@ -74,7 +77,10 @@ allowed_states set_monitor_valid_states(int experiment, SIDE side_to_check)
 		[signature_hash_length_requirement] = {AS_CEV_RECVD, AS_CER_RECVD},
 		[certificate_count_requirement] = {AS_CEV_RECVD, AS_CER_RECVD},
 		[heartbleed_requirement] = {AS_CFI_RECVD, AS_SFI_RECVD},
-		[input_output_testing] = {RECORD_LAYER_SERVER_STATES, RECORD_LAYER_CLIENT_STATES}
+		/* Differential Testing Monitors*/
+		[content_type_diff_test] = {RECORD_LAYER_SERVER_STATES, RECORD_LAYER_CLIENT_STATES},
+		[epoch_diff_test] = {RECORD_LAYER_SERVER_STATES, RECORD_LAYER_CLIENT_STATES},
+		[record_sequence_number_diff_test] = {RECORD_LAYER_SERVER_STATES, RECORD_LAYER_CLIENT_STATES}
     };
     const struct entry *entry = &table[experiment];
 
