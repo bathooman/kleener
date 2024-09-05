@@ -15,6 +15,7 @@
 #define CCC_RECVD 11
 #define CFI_RECVD 12
 #define CAPP_RECVD 15
+#define CALRT_RCVD 17
 
 #define HVR_RECVD 1
 #define SH_RECVD 3
@@ -25,6 +26,7 @@
 #define SCC_RECVD 13
 #define SFI_RECVD 14
 #define SAPP_RECVD 16
+#define SALRT_RCVD 18
 #define ALRT_DECRYPT_ERR 20
 
 int state_to_message_type(int state);

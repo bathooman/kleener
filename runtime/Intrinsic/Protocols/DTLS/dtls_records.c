@@ -5,12 +5,14 @@
 #include "klee/Protocols/dtls/dtls_records.h"
 #include "klee/Protocols/dtls/dtls_states.h"
 #include "klee/Support/Protocols/helper.h"
+#include "klee/klee.h"
 #include <stdio.h>
 #include <memory.h>
 #include <errno.h>
 #include <stdlib.h>
 #include <assert.h>
 #include <stdbool.h>
+#include <inttypes.h>
 
 /////////////////////// Parser Functions
 
@@ -793,42 +795,60 @@ static void fragment_DTLS_message(RECORD input_record, RECORD *fragmented_record
     memcpy(fragmented_records[1].RES.fragment->body.fragmented->payload, input_record.payload + FRAGMENT_HEADER_SIZE + frag1_size, frag2_size);
 }
 
-void determine_record_content(RECORD *rec, char* record_content, bool is_input)
+void determine_record_content(RECORD *rec, char* record_content, size_t record_content_size, bool is_input)
 {
-    char content[50] = "";
+    char *content = malloc(record_content_size);
+
+    int remaining_space = record_content_size - 1;
+
+    uint64_t epoch = klee_get_valuell(byte_to_int(rec->epoch, sizeof(rec->epoch)));
+    uint64_t record_sequence_number = klee_get_valuell(byte_to_int(rec->sequence_number, sizeof(rec->sequence_number)));
     switch (rec->content_type)
     {
         case Handshake_REC:
             if (is_input)
-                sprintf(content, "[input] Handshake:%hhu - ", rec->RES.fragment->handshake_type);
+                snprintf(content, remaining_space, "[input] Handshake | HType:%"PRId32" - ", klee_get_value_i32(rec->RES.fragment->handshake_type));
             else
-                sprintf(content, "[output] Handshake:%hhu", rec->RES.fragment->handshake_type);
-            strncat(record_content, content, 40);
+            {
+                int32_t handshake_type = klee_get_value_i32(rec->RES.fragment->handshake_type);                
+                uint64_t message_sequence_number = klee_get_valuell(byte_to_int(rec->RES.fragment->message_sequence, sizeof(rec->RES.fragment->message_sequence)));
+                snprintf(content, remaining_space, "[output] Handshake | HType:%"PRId32" | Epoch:%"PRIu64" | RSeq_num:%"PRIu64" | MSeq_num:%"PRIu64"", 
+                        handshake_type, epoch, record_sequence_number, message_sequence_number);
+            }                
             break;
         case Change_Cipher_Spec_REC:
             if (is_input)
-                strncat(record_content, "[input] CCS - ", 40);
+                snprintf(content, remaining_space, "[input] CCS - ");
             else
-                strncat(record_content, "[output] CCS", 40);
+            {
+                snprintf(content, remaining_space, "[output] CCS | Epoch:%"PRIu64" | RSeq_num:%"PRIu64"", epoch, record_sequence_number);
+            }
             break;
         case Alert_REC:
             if (is_input)
-                sprintf(content, "[input] Alert:%hhu | %hhu - ", rec->RES.alert.level, rec->RES.alert.desc);
+                snprintf(content, remaining_space,"[input] Alert - ");
             else
-                sprintf(content, "[output] Alert:%hhu | %hhu", rec->RES.alert.level, rec->RES.alert.desc);
-            strncat(record_content, content, 40);
+            {
+                int32_t alert_level = klee_get_value_i32(rec->RES.alert.level);
+                int32_t alert_desc = klee_get_value_i32(rec->RES.alert.desc);
+                snprintf(content, remaining_space, "[output] Alert | Epoch:%"PRIu64" | RSeq_num:%"PRIu64" | Level:%"PRId32" | Desc:%"PRId32"", epoch, record_sequence_number, alert_level, alert_desc);
+            }                
             break;
         case Application_Data:
             if (is_input)
-                strncat(record_content, "[input] App_data - ", 40);
+                snprintf(content, remaining_space, "[input] App_data - ");
             else
-                strncat(record_content, "[output] App_data", 40);
+            {
+                snprintf(content, remaining_space, "[output] App_data | Epoch:%"PRIu64" | RSeq_num:%"PRIu64"", epoch, record_sequence_number);
+            }
             break;
         default:
-            printf("Content Type could not be determined!\n\n");
-            exit(-1);
+            fprintf(stderr, "Content Type could not be determined!\n\n");
+            exit(EXIT_FAILURE);
             break;
     }
+    strncat(record_content, content, record_content_size);
+    free(content);
 }
 
 int64_t original_sequence_number = -1;

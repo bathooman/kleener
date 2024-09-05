@@ -74,6 +74,7 @@ set(SRC_FILES
 	Protocols/DTLS/monitors/diff-testing/content-type-diff-testing.c
 	Protocols/DTLS/monitors/diff-testing/epoch-diff-testing.c
 	Protocols/DTLS/monitors/diff-testing/record-sequence-number-diff-testing.c
+	Protocols/DTLS/monitors/diff-testing/message-sequence-number-diff-testing.c
         )
 
 # Build it

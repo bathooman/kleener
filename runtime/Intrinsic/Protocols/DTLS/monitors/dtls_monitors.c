@@ -36,7 +36,8 @@ monitor_handle set_monitor_handle(int experiment, SIDE side_to_check)
 		/* Differential Testing Monitors*/
 		[content_type_diff_test] = {content_type_diff_testing_server, NULL},
 		[epoch_diff_test] = {epoch_diff_testing_server, NULL},
-		[record_sequence_number_diff_test] = {record_sequence_number_diff_testing_server, NULL}
+		[record_sequence_number_diff_test] = {record_sequence_number_diff_testing_server, NULL},
+		[message_sequence_number_diff_test] = {message_sequence_number_diff_testing_server, NULL}
     };
     const struct entry *entry = &table[experiment];
 
@@ -80,7 +81,8 @@ allowed_states set_monitor_valid_states(int experiment, SIDE side_to_check)
 		/* Differential Testing Monitors*/
 		[content_type_diff_test] = {RECORD_LAYER_SERVER_STATES, RECORD_LAYER_CLIENT_STATES},
 		[epoch_diff_test] = {RECORD_LAYER_SERVER_STATES, RECORD_LAYER_CLIENT_STATES},
-		[record_sequence_number_diff_test] = {RECORD_LAYER_SERVER_STATES, RECORD_LAYER_CLIENT_STATES}
+		[record_sequence_number_diff_test] = {RECORD_LAYER_SERVER_STATES, RECORD_LAYER_CLIENT_STATES},
+		[message_sequence_number_diff_test] = {HANDSHAKE_LAYER_SERVER_STATES, HANDSHAKE_LAYER_CLIENT_STATES}
     };
     const struct entry *entry = &table[experiment];
 
@@ -113,6 +115,7 @@ int determine_state_to_check(allowed_states as, SIDE side_to_check, bool is_ciph
 			if (as & AS_CKE_RECVD) condition |= (state_to_check == CKE_RECVD);
 			if (as & AS_CCC_RECVD) condition |= (state_to_check == CCC_RECVD);
 			if (as & AS_CFI_RECVD) condition |= (state_to_check == CFI_RECVD);
+			if (as & AS_CAPP_RECVD) condition |= (state_to_check == CAPP_RECVD);
 		}
 		else if (side_to_check == CLIENT && !is_cipher_ecc)
 		{
@@ -121,6 +124,7 @@ int determine_state_to_check(allowed_states as, SIDE side_to_check, bool is_ciph
 			if (as & AS_SHD_RECVD) condition |= (state_to_check == SHD_RECVD);
 			if (as & AS_SCC_RECVD) condition |= (state_to_check == SCC_RECVD);
 			if (as & AS_SFI_RECVD) condition |= (state_to_check == SFI_RECVD);
+			if (as & AS_SAPP_RECVD) condition |= (state_to_check == SAPP_RECVD);
 		}
 		else if (side_to_check == SERVER && is_cipher_ecc)
 		{
@@ -131,6 +135,7 @@ int determine_state_to_check(allowed_states as, SIDE side_to_check, bool is_ciph
 			if (as & AS_CEV_RECVD) condition |= (state_to_check == CEV_RECVD);
 			if (as & AS_CCC_RECVD) condition |= (state_to_check == CCC_RECVD);
 			if (as & AS_CFI_RECVD) condition |= (state_to_check == CFI_RECVD);
+			if (as & AS_CAPP_RECVD) condition |= (state_to_check == CAPP_RECVD);
 		}
 		else if (side_to_check == CLIENT && is_cipher_ecc)
 		{
@@ -142,6 +147,7 @@ int determine_state_to_check(allowed_states as, SIDE side_to_check, bool is_ciph
 			if (as & AS_SHD_RECVD) condition |= (state_to_check == SHD_RECVD);
 			if (as & AS_SCC_RECVD) condition |= (state_to_check == SCC_RECVD);
 			if (as & AS_SFI_RECVD) condition |= (state_to_check == SFI_RECVD);
+			if (as & AS_SAPP_RECVD) condition |= (state_to_check == SAPP_RECVD);
 		}
 
 		klee_assume(condition);

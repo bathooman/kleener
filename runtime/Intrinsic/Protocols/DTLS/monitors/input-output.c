@@ -8,7 +8,7 @@
 #define REC_RECEIVED 1
 
 static STATE local_state = INITIAL;
-static char response[200] = "";
+static char response[500] = "";
 static bool is_input = true;
 
 void inp_outp_server(RECORD *record, bool is_record_client_generated) 
@@ -17,7 +17,7 @@ void inp_outp_server(RECORD *record, bool is_record_client_generated)
   {
     if (byte_to_int(record->epoch, sizeof(record->epoch)) == 0) 
     {
-      determine_record_content(record, response, is_input);
+      determine_record_content(record, response, sizeof(response), is_input);
       if (record->content_type == Handshake_REC) 
       {
         if (record->RES.fragment->handshake_type == Client_Hello_MSG && record->RES.fragment->body.client_hello->cookie_length == 0) 
@@ -30,7 +30,7 @@ void inp_outp_server(RECORD *record, bool is_record_client_generated)
     }
   }
   if (!is_record_client_generated && local_state == REC_RECEIVED) {
-    determine_record_content(record, response, !is_input);
+    determine_record_content(record, response, sizeof(response), !is_input);
     kleener_report_response(__FILE__, __LINE__, response, "resp");
   }
 }

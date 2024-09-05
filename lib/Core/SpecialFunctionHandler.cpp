@@ -26,7 +26,7 @@
 #include "klee/Support/Debug.h"
 #include "klee/Support/ErrorHandling.h"
 #include "klee/Support/OptionCategories.h"
-
+#include "klee/Expr/ExprSMTLIBPrinter.h"
 #include "klee/Support/CompilerWarning.h"
 DISABLE_WARNING_PUSH
 DISABLE_WARNING_DEPRECATED_DECLARATIONS
@@ -573,6 +573,10 @@ void SpecialFunctionHandler::handlePrintExpr(ExecutionState &state,
 
   std::string msg_str = readStringAtAddress(state, arguments[0]);
   llvm::errs() << msg_str << ":" << arguments[1] << "\n";
+  llvm::errs() << "----\n";
+  ExprSMTLIBPrinter printer;
+  printer.setOutput(llvm::errs());
+  printer.printExpression(arguments[1], ExprSMTLIBPrinter::SORT_BITVECTOR);
 }
 
 void SpecialFunctionHandler::handleSetForking(ExecutionState &state,

@@ -12,20 +12,19 @@ static STATE local_state = INITIAL;
 static char response[500] = "";
 static bool is_input = true;
 
-void record_sequence_number_diff_testing_server(RECORD *P, bool is_record_client_generated)
+void message_sequence_number_diff_testing_server(RECORD *P, bool is_record_client_generated)
 {
     if (is_record_client_generated && local_state == INITIAL) 
     {
         determine_record_content(P, response, sizeof(response), is_input);
-        kleener_make_symbolic(&P->sequence_number, sizeof(P->sequence_number), "sequencenumber");
-        local_state = RECORD_RECEIVED;
+        kleener_make_symbolic(P->RES.fragment->message_sequence, sizeof(P->RES.fragment->message_sequence), "message_sequence_number");
+        local_state = RECORD_RECEIVED;      
     }
     else if (!is_record_client_generated && local_state == RECORD_RECEIVED) 
     {
         determine_record_content(P, response, sizeof(response), !is_input);
-        uint64_t out_sequence_number = byte_to_int(P->sequence_number, sizeof(P->sequence_number));
-        klee_print_expr("sequencenumber: ", P->sequence_number[0]);
         kleener_report_response(__FILE__, __LINE__, response, "resp");
+        local_state = EXIT;
     }
     else if (local_state == EXIT)
     {

@@ -104,6 +104,7 @@ void DTLS_server_state_machine(RECORD *record, RECORD *shadow_record, size_t cou
 	}
 	else if (shadow_rec->content_type == Alert_REC)
 	{
+		*server_current_state = CALRT_RCVD;
 		printf("\n[Server-model-log] Alert has been parsed\n");
 	}
 	else if (shadow_rec->content_type == Heartbeat_REC)
@@ -174,6 +175,7 @@ void DTLS_client_state_machine(RECORD *record, RECORD *shadow_record, size_t cou
 	}
 	else if (shadow_rec->content_type == Alert_REC)
 	{
+		*client_current_state = SALRT_RCVD;
 		printf("\n[Client-model-log] Alert has been parsed\n");
 	}
 	else if (shadow_rec->content_type == Heartbeat_REC)

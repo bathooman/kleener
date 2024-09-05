@@ -210,6 +210,13 @@ public:
   /// \return True if human readable mode is switched on
   bool isHumanReadable();
 
+  /// Recursively print expression
+  /// \param e is the expression to print
+  /// \param expectedSort is the sort we want. If "e" is not of the right type a
+  /// cast will be performed.
+  /// \param abbrMode the abbreviation mode to use for this expression
+  void printExpression(const ref<Expr> &e, SMTLIB_SORT expectedSort);
+  
 protected:
   /// Contains the arrays found during scans
   std::set<const Array *> usedArrays;
@@ -280,13 +287,6 @@ protected:
   /// Print a Constant in the format specified by the current "Constant Display
   /// Mode"
   void printConstant(const ref<ConstantExpr> &e);
-
-  /// Recursively print expression
-  /// \param e is the expression to print
-  /// \param expectedSort is the sort we want. If "e" is not of the right type a
-  /// cast will be performed.
-  /// \param abbrMode the abbreviation mode to use for this expression
-  void printExpression(const ref<Expr> &e, SMTLIB_SORT expectedSort);
 
   /// Scan Expression recursively for Arrays in expressions. Found arrays are
   /// added to

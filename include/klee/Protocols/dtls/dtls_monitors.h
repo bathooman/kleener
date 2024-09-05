@@ -36,9 +36,10 @@
 #define content_type_diff_test 100
 #define epoch_diff_test 102
 #define record_sequence_number_diff_test 104
+#define message_sequence_number_diff_test 106
 
-#define RECORD_LAYER_SERVER_STATES AS_CH0_RECVD | AS_CH2_RECVD | AS_CKE_RECVD | AS_CCE_RECVD | AS_CEV_RECVD | AS_CCC_RECVD | AS_CFI_RECVD
-#define RECORD_LAYER_CLIENT_STATES AS_HVR_RECVD | AS_SH_RECVD | AS_SCE_RECVD | AS_SKE_RECVD | AS_CER_RECVD | AS_SHD_RECVD | AS_SCC_RECVD | AS_SFI_RECVD
+#define RECORD_LAYER_SERVER_STATES AS_CH0_RECVD | AS_CH2_RECVD | AS_CKE_RECVD | AS_CCE_RECVD | AS_CEV_RECVD | AS_CCC_RECVD | AS_CFI_RECVD | AS_CAPP_RECVD
+#define RECORD_LAYER_CLIENT_STATES AS_HVR_RECVD | AS_SH_RECVD | AS_SCE_RECVD | AS_SKE_RECVD | AS_CER_RECVD | AS_SHD_RECVD | AS_SCC_RECVD | AS_SFI_RECVD | AS_SAPP_RECVD
 #define HANDSHAKE_LAYER_SERVER_STATES AS_CH0_RECVD | AS_CH2_RECVD | AS_CKE_RECVD | AS_CCE_RECVD | AS_CEV_RECVD
 #define HANDSHAKE_LAYER_CLIENT_STATES AS_HVR_RECVD | AS_SH_RECVD | AS_SCE_RECVD | AS_SKE_RECVD | AS_CER_RECVD | AS_SHD_RECVD
 typedef void (*monitor_handle)(RECORD *record, bool is_record_client_generated);
@@ -59,7 +60,9 @@ typedef enum allowed_states {
     AS_CCC_RECVD = 1 << CCC_RECVD, // 11th bit set
     AS_CFI_RECVD = 1 << CFI_RECVD, // 12th bit set
     AS_SCC_RECVD = 1 << SCC_RECVD, // 13th bit set
-    AS_SFI_RECVD = 1 << SFI_RECVD  // 14th bit set
+    AS_SFI_RECVD = 1 << SFI_RECVD,  // 14th bit set
+    AS_CAPP_RECVD = 1 << CAPP_RECVD,
+    AS_SAPP_RECVD = 1 << SAPP_RECVD 
 }allowed_states;
 
 typedef struct
@@ -123,4 +126,5 @@ void is_message_length_equal_in_fragments_client(RECORD *record, bool is_record_
 void content_type_diff_testing_server(RECORD *record, bool is_record_client_generated);
 void epoch_diff_testing_server(RECORD *P, bool is_record_client_generated);
 void record_sequence_number_diff_testing_server(RECORD *P, bool is_record_client_generated);
+void message_sequence_number_diff_testing_server(RECORD *P, bool is_record_client_generated);
 #endif // DTLS_MONITORS
