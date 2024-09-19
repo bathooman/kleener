@@ -568,15 +568,35 @@ void SpecialFunctionHandler::handlePosixPreferCex(ExecutionState &state,
 void SpecialFunctionHandler::handlePrintExpr(ExecutionState &state,
                                   KInstruction *target,
                                   std::vector<ref<Expr> > &arguments) {
-  assert(arguments.size()==2 &&
-         "invalid number of arguments to klee_print_expr");
 
-  std::string msg_str = readStringAtAddress(state, arguments[0]);
-  llvm::errs() << msg_str << ":" << arguments[1] << "\n";
-  llvm::errs() << "----\n";
+
+  assert(!arguments.empty() && (arguments.size() % 2 == 0) &&
+        "Number of arguments to klee_print_expr should be even and non-zero");
+
+  std::string outputStr;
+  llvm::raw_string_ostream rso(outputStr);
+
   ExprSMTLIBPrinter printer;
-  printer.setOutput(llvm::errs());
-  printer.printExpression(arguments[1], ExprSMTLIBPrinter::SORT_BITVECTOR);
+  printer.setOutput(rso);
+  
+  const size_t numPairs = arguments.size() / 2;
+  for (size_t i = 0 ; i < numPairs;  ++i)
+  {
+    const ref<Expr> &nameExpr = arguments[2 * i];
+    const ref<Expr> &valueExpr = arguments[2 * i + 1];
+
+    assert(isa<ConstantExpr>(nameExpr) && isa<Expr>(valueExpr));
+    const std::string msg_str = readStringAtAddress(state, nameExpr);
+    rso << msg_str << ": ";
+    printer.printExpression(valueExpr, ExprSMTLIBPrinter::SORT_BITVECTOR);
+    rso << "\n";
+  }
+
+  rso.flush();
+
+  executor.terminateStateOnResponse(
+      state, outputStr,
+      StateTerminationType::ReportResponse, "", "resp");
 }
 
 void SpecialFunctionHandler::handleSetForking(ExecutionState &state,

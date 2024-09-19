@@ -795,62 +795,6 @@ static void fragment_DTLS_message(RECORD input_record, RECORD *fragmented_record
     memcpy(fragmented_records[1].RES.fragment->body.fragmented->payload, input_record.payload + FRAGMENT_HEADER_SIZE + frag1_size, frag2_size);
 }
 
-void determine_record_content(RECORD *rec, char* record_content, size_t record_content_size, bool is_input)
-{
-    char *content = malloc(record_content_size);
-
-    int remaining_space = record_content_size - 1;
-
-    uint64_t epoch = klee_get_valuell(byte_to_int(rec->epoch, sizeof(rec->epoch)));
-    uint64_t record_sequence_number = klee_get_valuell(byte_to_int(rec->sequence_number, sizeof(rec->sequence_number)));
-    switch (rec->content_type)
-    {
-        case Handshake_REC:
-            if (is_input)
-                snprintf(content, remaining_space, "[input] Handshake | HType:%"PRId32" - ", klee_get_value_i32(rec->RES.fragment->handshake_type));
-            else
-            {
-                int32_t handshake_type = klee_get_value_i32(rec->RES.fragment->handshake_type);                
-                uint64_t message_sequence_number = klee_get_valuell(byte_to_int(rec->RES.fragment->message_sequence, sizeof(rec->RES.fragment->message_sequence)));
-                snprintf(content, remaining_space, "[output] Handshake | HType:%"PRId32" | Epoch:%"PRIu64" | RSeq_num:%"PRIu64" | MSeq_num:%"PRIu64"", 
-                        handshake_type, epoch, record_sequence_number, message_sequence_number);
-            }                
-            break;
-        case Change_Cipher_Spec_REC:
-            if (is_input)
-                snprintf(content, remaining_space, "[input] CCS - ");
-            else
-            {
-                snprintf(content, remaining_space, "[output] CCS | Epoch:%"PRIu64" | RSeq_num:%"PRIu64"", epoch, record_sequence_number);
-            }
-            break;
-        case Alert_REC:
-            if (is_input)
-                snprintf(content, remaining_space,"[input] Alert - ");
-            else
-            {
-                int32_t alert_level = klee_get_value_i32(rec->RES.alert.level);
-                int32_t alert_desc = klee_get_value_i32(rec->RES.alert.desc);
-                snprintf(content, remaining_space, "[output] Alert | Epoch:%"PRIu64" | RSeq_num:%"PRIu64" | Level:%"PRId32" | Desc:%"PRId32"", epoch, record_sequence_number, alert_level, alert_desc);
-            }                
-            break;
-        case Application_Data:
-            if (is_input)
-                snprintf(content, remaining_space, "[input] App_data - ");
-            else
-            {
-                snprintf(content, remaining_space, "[output] App_data | Epoch:%"PRIu64" | RSeq_num:%"PRIu64"", epoch, record_sequence_number);
-            }
-            break;
-        default:
-            fprintf(stderr, "Content Type could not be determined!\n\n");
-            exit(EXIT_FAILURE);
-            break;
-    }
-    strncat(record_content, content, record_content_size);
-    free(content);
-}
-
 int64_t original_sequence_number = -1;
 
 /*
@@ -931,4 +875,34 @@ size_t handle_DTLS_fragmentation(const uint8_t *datagram, size_t datagram_size, 
     }
     // We return the new datagram size
     return new_datagram_size;
+}
+
+void generate_dtls_output(RECORD *P)
+{
+    uint8_t content_type = P->content_type;
+    uint64_t epoch = byte_to_int(P->epoch, sizeof(P->epoch));
+    uint64_t record_sequence_number = byte_to_int(P->sequence_number, sizeof(P->sequence_number));
+    uint8_t handshake_type;
+    uint64_t message_sequence_number;
+    uint8_t alert_level;
+    uint8_t alert_desc;
+    switch (content_type) {
+        case Handshake_REC:
+            handshake_type = P->RES.fragment->handshake_type;
+            message_sequence_number = byte_to_int(P->RES.fragment->message_sequence, sizeof(P->RES.fragment->message_sequence));
+            klee_print_expr("contentType", content_type, "epoch", epoch, "recordSequenceNumber", record_sequence_number, "handshakeType", handshake_type, "messageSequenceNumber", message_sequence_number);
+            break;
+        case Change_Cipher_Spec_REC:
+        case Application_Data:
+            klee_print_expr("contentType", content_type, "epoch", epoch, "recordSequenceNumber", record_sequence_number);
+            break;
+        case Alert_REC:
+            alert_level = P->RES.alert.level;
+            alert_desc = P->RES.alert.desc;
+            klee_print_expr("contentType", content_type, "epoch", epoch, "recordSequenceNumber", record_sequence_number, "alertLevel", alert_level, "alertDesc", alert_desc);
+            break;
+        default:
+            fprintf(stderr, "Content Type could not be determined!\n\n");
+            exit(EXIT_FAILURE);
+    }
 }

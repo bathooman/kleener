@@ -220,5 +220,5 @@ int parse_record(const uint8_t *datagram, RECORD *rec,  size_t *off, size_t data
 int serialize_record(uint8_t **out_buffer, RECORD *rec, size_t rcvsize, RECORD *shadow_rec);                         
 size_t handle_DTLS_fragmentation(const uint8_t *datagram, size_t datagram_size, uint8_t *out_datagram,
                                  QUEUE *queue, bool is_client_originated, int state_to_check);
-void determine_record_content(RECORD *rec, char* record_content, size_t record_content_size, bool is_input);                                 
+void generate_dtls_output(RECORD *P);
 #endif //RECORDS_RECORDS_H

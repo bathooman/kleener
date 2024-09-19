@@ -3820,16 +3820,15 @@ void Executor::terminateStateOnResponse(ExecutionState &state,
   Instruction * lastInst;
   const InstructionInfo &ii = getLastNonKleeInternalInstruction(state, &lastInst);
 
-  kleener_message("RESPONSE: %s", resp.c_str());
+  kleener_message("RESPONSE: \n%s", resp.c_str());
 
   std::string MsgString;
   llvm::raw_string_ostream msg(MsgString);
-  msg << "Received Response: " << resp << '\n';
-  if (ii.file != "") {
-    msg << "File: " << ii.file << '\n'
-        << "Line: " << ii.line << '\n'
-        << "State: " << state.getID() << '\n';
-  }
+  msg << "File: " << ii.file << '\n'
+      << "Line: " << ii.line << '\n'
+      << "State: " << state.getID() << '\n';
+
+  msg << "Received Response: " << '\n' << resp << '\n';
 
   std::string info_str = info.str();
   if (!info_str.empty())
