@@ -37,6 +37,7 @@
 #define epoch_diff_test 102
 #define record_sequence_number_diff_test 104
 #define message_sequence_number_diff_test 106
+#define handshake_type_diff_test 108
 
 #define RECORD_LAYER_SERVER_STATES AS_CH0_RECVD | AS_CH2_RECVD | AS_CKE_RECVD | AS_CCE_RECVD | AS_CEV_RECVD | AS_CCC_RECVD | AS_CFI_RECVD | AS_CAPP_RECVD
 #define RECORD_LAYER_CLIENT_STATES AS_HVR_RECVD | AS_SH_RECVD | AS_SCE_RECVD | AS_SKE_RECVD | AS_CER_RECVD | AS_SHD_RECVD | AS_SCC_RECVD | AS_SFI_RECVD | AS_SAPP_RECVD
@@ -127,4 +128,5 @@ void content_type_diff_testing_server(RECORD *record, bool is_record_client_gene
 void epoch_diff_testing_server(RECORD *P, bool is_record_client_generated);
 void record_sequence_number_diff_testing_server(RECORD *P, bool is_record_client_generated);
 void message_sequence_number_diff_testing_server(RECORD *P, bool is_record_client_generated);
+void handshake_type_diff_testing_server(RECORD *P, bool is_record_client_generated);
 #endif // DTLS_MONITORS

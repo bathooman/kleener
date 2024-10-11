@@ -20,7 +20,7 @@ void record_sequence_number_diff_testing_server(RECORD *P, bool is_record_client
     else if (!is_record_client_generated && local_state == RECORD_RECEIVED) 
     {
         generate_dtls_output(P);
-        local_state = RECORD_RECEIVED;
+        local_state = EXIT;
         
     }
     else if (local_state == EXIT)

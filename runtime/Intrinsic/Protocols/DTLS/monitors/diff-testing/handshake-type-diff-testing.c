@@ -10,12 +10,12 @@
 
 static STATE local_state = INITIAL;
 
-void epoch_diff_testing_server(RECORD *P, bool is_record_client_generated)
+void handshake_type_diff_testing_server(RECORD *P, bool is_record_client_generated)
 {
-    if (is_record_client_generated && local_state == INITIAL) 
+    if (is_record_client_generated && local_state == INITIAL && P->content_type == Handshake_REC) 
     {
-        kleener_make_symbolic(&P->epoch, sizeof(P->epoch), "epoch");
-        local_state = RECORD_RECEIVED;   
+        kleener_make_symbolic(&P->RES.fragment->handshake_type, sizeof(P->RES.fragment->handshake_type), "handshake_type");
+        local_state = RECORD_RECEIVED;      
     }
     else if (!is_record_client_generated && local_state == RECORD_RECEIVED) 
     {
