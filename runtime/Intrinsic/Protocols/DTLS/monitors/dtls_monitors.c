@@ -39,7 +39,8 @@ monitor_handle set_monitor_handle(int experiment, SIDE side_to_check)
 		[record_sequence_number_diff_test] = {record_sequence_number_diff_testing_server, NULL},
 		[record_version_diff_test] = {record_version_diff_testing_server, NULL},
 		[message_sequence_number_diff_test] = {message_sequence_number_diff_testing_server, NULL},
-		[handshake_type_diff_test] = {handshake_type_diff_testing_server, NULL}
+		[handshake_type_diff_test] = {handshake_type_diff_testing_server, NULL},
+		[ch0_handshake_version_diff_test] = {ch0_version_diff_testing_server, NULL}
     };
     const struct entry *entry = &table[experiment];
 
@@ -86,7 +87,8 @@ allowed_states set_monitor_valid_states(int experiment, SIDE side_to_check)
 		[record_sequence_number_diff_test] = {RECORD_LAYER_SERVER_STATES, RECORD_LAYER_CLIENT_STATES},
 		[record_version_diff_test] = {RECORD_LAYER_SERVER_STATES, RECORD_LAYER_CLIENT_STATES},
 		[message_sequence_number_diff_test] = {HANDSHAKE_LAYER_SERVER_STATES, HANDSHAKE_LAYER_CLIENT_STATES},
-		[handshake_type_diff_test] = {HANDSHAKE_LAYER_SERVER_STATES, HANDSHAKE_LAYER_CLIENT_STATES}
+		[handshake_type_diff_test] = {HANDSHAKE_LAYER_SERVER_STATES, HANDSHAKE_LAYER_CLIENT_STATES},
+		[ch0_handshake_version_diff_test] = {RECORD_LAYER_SERVER_STATES, RECORD_LAYER_CLIENT_STATES}
     };
     const struct entry *entry = &table[experiment];
 

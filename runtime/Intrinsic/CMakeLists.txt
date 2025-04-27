@@ -77,6 +77,7 @@ set(SRC_FILES
 	Protocols/DTLS/monitors/diff-testing/record-version-diff-testing.c
 	Protocols/DTLS/monitors/diff-testing/message-sequence-number-diff-testing.c
 	Protocols/DTLS/monitors/diff-testing/handshake-type-diff-testing.c
+	Protocols/DTLS/monitors/diff-testing/ch0-handshake-version-diff-testing.c
         )
 
 # Build it
