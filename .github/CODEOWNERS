@@ -1,0 +1,6 @@
+# Kleener Code Owners
+# These users are automatically requested for review on all pull requests
+# and must approve changes before they can be merged.
+
+# All files in the repository require approval from at least one of these owners
+*                           @bathooman @kostis @pfg666
