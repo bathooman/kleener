@@ -70,6 +70,18 @@ set(SRC_FILES
 	Protocols/QUIC/monitors/stream-size.c
 	Protocols/QUIC/monitors/new-token-length.c
 	Protocols/QUIC/monitors/crypto-length.c
+	Protocols/CoAP/coap_packets.c
+	Protocols/CoAP/coap_socket_model.c
+	Protocols/CoAP/monitors/coap_monitors.c
+	Protocols/CoAP/monitors/version.c
+	Protocols/CoAP/monitors/coap-token-length.c
+	Protocols/CoAP/monitors/code.c
+	Protocols/CoAP/monitors/empty-message.c
+	Protocols/CoAP/monitors/mid-match.c
+	Protocols/CoAP/monitors/token-match.c
+	Protocols/CoAP/monitors/matching-message-type.c
+	Protocols/CoAP/monitors/repeatable-options.c
+	Protocols/CoAP/monitors/unrecognized-options.c
 	# Differential Testing Monitors
 	Protocols/DTLS/monitors/diff-testing/content-type-diff-testing.c
 	Protocols/DTLS/monitors/diff-testing/epoch-diff-testing.c

@@ -11,6 +11,7 @@
 #include <stdbool.h>
 #include "klee/Protocols/quic/quic_socket_model.h"
 #include "klee/Protocols/dtls/dtls_socket_model.h"
+#include "klee/Protocols/coap/coap_socket_model.h"
 
 
 // The model for the socket function
@@ -62,6 +63,10 @@ int bind(int sockfd, const struct sockaddr *myaddr, socklen_t addrlen)
 	{
 		return QUIC_bind_model(sockfd, myaddr, addrlen);
 	}
+	else if (strcmp(envstate, "CoAP") == 0)
+	{
+		return CoAP_bind_model(sockfd, myaddr, addrlen);
+	}
 	else
 	{
 		printf("\n[Model-log] The protocol is not supported\n");
@@ -82,6 +87,10 @@ ssize_t recvfrom(int __fd, void *__buf, size_t __n, int __flags,
 	else if (strcmp(envstate, "DTLS") == 0)
 	{
 		return DTLS_recvfrom_model(__fd, __buf, __n, __flags, __addr, __addr_len);
+	}
+	else if (strcmp(envstate, "CoAP") == 0)
+	{
+		return CoAP_recvfrom_model(__fd, __buf, __n, __flags, __addr, __addr_len);
 	}
 	else
 	{
@@ -105,6 +114,10 @@ ssize_t sendto(int __fd, const void *__buf, size_t __n,
 	{
 		return DTLS_sendto_model(__fd, __buf, __n, __flags, __addr, __addr_len);
 	}
+	else if (strcmp(envstate, "CoAP") == 0)
+	{
+		return CoAP_sendto_model(__fd, __buf, __n, __flags, __addr, __addr_len);
+	}
 	else
 	{
 		printf("\n[Model-log] The protocol is not supported\n");
@@ -126,6 +139,10 @@ ssize_t recvmsg(int sockfd, struct msghdr *mess, int flags)
 	{
 		return QUIC_recvmsg_model(sockfd, mess, flags);
 	}
+	else if (strcmp(envstate, "CoAP") == 0)
+	{
+		return CoAP_recvmsg_model(sockfd, mess, flags);
+	}
 	else
 	{
 		printf("\n[Model-log] The protocol is not supported\n");
@@ -146,6 +163,10 @@ ssize_t sendmsg(int sockfd, const struct msghdr *msg, int flags)
 	else if (strcmp(envstate, "QUIC") == 0)
 	{
 		return QUIC_sendmsg_model(sockfd, msg, flags);
+	}
+	else if (strcmp(envstate, "CoAP") == 0)
+	{
+		return CoAP_sendmsg_model(sockfd, msg, flags);
 	}
 	else
 	{
