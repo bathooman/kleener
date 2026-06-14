@@ -82,6 +82,10 @@ set(SRC_FILES
 	Protocols/CoAP/monitors/matching-message-type.c
 	Protocols/CoAP/monitors/repeatable-options.c
 	Protocols/CoAP/monitors/unrecognized-options.c
+	Protocols/CoAP/monitors/token-spoof.c
+	Protocols/CoAP/monitors/option-length.c
+	Protocols/CoAP/monitors/payload-marker.c
+	Protocols/CoAP/monitors/separate-response.c
 	# Differential Testing Monitors
 	Protocols/DTLS/monitors/diff-testing/content-type-diff-testing.c
 	Protocols/DTLS/monitors/diff-testing/epoch-diff-testing.c

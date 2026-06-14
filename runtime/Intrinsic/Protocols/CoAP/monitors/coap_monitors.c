@@ -36,9 +36,14 @@ coap_monitor_handle set_coap_monitor_handle(int experiment, SIDE side_to_check)
         [coap_matching_type_requirement]     = {is_coap_matching_message_type,    is_coap_matching_message_type},
         [coap_repeatable_opts_requirement]   = {is_coap_repeatable_options_valid, is_coap_repeatable_options_valid},
         [coap_unrecognized_opts_requirement] = {is_coap_unrecognized_options_valid, is_coap_unrecognized_options_valid},
+        [coap_token_spoof_requirement]       = {is_coap_token_spoofable,           is_coap_token_spoofable},
+        [coap_option_length_requirement]     = {is_coap_option_length_valid,       is_coap_option_length_valid},
+        [coap_payload_marker_requirement]    = {is_coap_payload_marker_valid,      is_coap_payload_marker_valid},
+        [coap_separate_token_spoof_requirement] = {is_coap_separate_token_spoof,   is_coap_separate_token_spoof},
+        [coap_separate_token_ok_requirement]    = {is_coap_separate_token_ok,      is_coap_separate_token_ok},
     };
 
-    if (experiment < 0 || experiment > coap_unrecognized_opts_requirement)
+    if (experiment < 0 || experiment > coap_separate_token_ok_requirement)
         return NULL;
 
     const struct entry *e = &table[experiment];

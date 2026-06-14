@@ -214,8 +214,19 @@ int serialize_coap_message(const CoapMessage *message,
             prev_number = message->options[i].number;
         }
 
+        /* Malformed case (RFC 7252 §3.1): a monitor can request a bare payload
+         * marker with a zero-length payload — which MUST be a message format
+         * error — by setting the LIVE message's payload to non-NULL with
+         * payload_length 0. Driven from the live message (not shadow) so the
+         * monitor's injection reaches the wire; normal traffic has payload==NULL
+         * here and is unaffected. */
+        if (message->payload != NULL && message->payload_length == 0)
+        {
+            if (out_off + 1 > out_buf_size) return -1;
+            out_buf[out_off++] = COAP_PAYLOAD_MARKER;   /* dangling marker, no bytes */
+        }
         /* Payload — bring across verbatim from shadow. */
-        if (sizes->payload != NULL && sizes->payload_length > 0)
+        else if (sizes->payload != NULL && sizes->payload_length > 0)
         {
             if (out_off + 1 + sizes->payload_length > out_buf_size) return -1;
             out_buf[out_off++] = COAP_PAYLOAD_MARKER;
