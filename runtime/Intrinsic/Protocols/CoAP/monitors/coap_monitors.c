@@ -19,6 +19,7 @@
 #include "klee/Protocols/coap/coap_packets.h"
 #include <stddef.h>
 #include <string.h>
+#include <stdio.h>
 
 coap_monitor_handle set_coap_monitor_handle(int experiment, SIDE side_to_check)
 {
@@ -41,9 +42,10 @@ coap_monitor_handle set_coap_monitor_handle(int experiment, SIDE side_to_check)
         [coap_payload_marker_requirement]    = {is_coap_payload_marker_valid,      is_coap_payload_marker_valid},
         [coap_separate_token_spoof_requirement] = {is_coap_separate_token_spoof,   is_coap_separate_token_spoof},
         [coap_separate_token_ok_requirement]    = {is_coap_separate_token_ok,      is_coap_separate_token_ok},
+        [coap_mid_spoof_requirement]            = {is_coap_mid_spoofable,          is_coap_mid_spoofable},
     };
 
-    if (experiment < 0 || experiment > coap_separate_token_ok_requirement)
+    if (experiment < 0 || experiment > coap_mid_spoof_requirement)
         return NULL;
 
     const struct entry *e = &table[experiment];

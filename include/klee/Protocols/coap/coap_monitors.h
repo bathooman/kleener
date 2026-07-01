@@ -26,6 +26,7 @@
 #define coap_payload_marker_requirement 13
 #define coap_separate_token_spoof_requirement 14
 #define coap_separate_token_ok_requirement 15
+#define coap_mid_spoof_requirement 17
 
 /* ---- Monitor dispatch table ----
  * One monitor handle per (requirement, side). Every requirement currently
@@ -98,5 +99,11 @@ void is_coap_payload_marker_valid(CoapMessage *message, bool is_message_client_g
  * exp 15 keeps it as a control. Detection is in the harness response handler. */
 void is_coap_separate_token_spoof(CoapMessage *message, bool is_message_client_generated);
 void is_coap_separate_token_ok(CoapMessage *message, bool is_message_client_generated);
+
+/* Client-side dual of token-spoof (RFC 7252 §5.3.2): flip the response's
+ * Message ID while keeping the token correct, to observe whether libcoap
+ * discards a wrong-MID response or still delivers it. Detection is in the
+ * harness response handler. */
+void is_coap_mid_spoofable(CoapMessage *message, bool is_message_client_generated);
 
 #endif
