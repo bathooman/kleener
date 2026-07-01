@@ -35,6 +35,17 @@ static socklen_t client_addr_len;
 // FD for the server and the client */
 static int server_port = -1;
 
+#define COAP_MODEL_MAX_DATAGRAM 1500
+
+typedef struct {
+	bool     ready;   /* a materialized datagram is waiting to be consumed */
+	uint8_t *bytes;   /* its post-monitor bytes */
+	size_t   len;     /* its length */
+} PendingMsg;
+
+static PendingMsg pending_server = { false, NULL, 0 };
+static PendingMsg pending_client = { false, NULL, 0 };
+
 
 /* KLEE_SYMBOLIC_EXPERIMENT selects which monitor the dispatcher runs. */
 
@@ -145,6 +156,71 @@ ssize_t CoAP_recvfrom_model(int __fd, void *__buf, size_t __n, int __flags,
 	 * per-message length. Used as the output bound so a size-growing monitor
 	 * can serialize without overflow. */
 	size_t buf_cap = __n;
+
+	/* ---- MSG_PEEK handling (added for FreeCoAP's peek/peek/consume) ----
+	 * Leaves the original four-branch consume logic below untouched; only
+	 * intercepts when a stash is ready or when this call is itself a peek. */
+	{
+		bool is_peek = (__flags & MSG_PEEK) != 0;
+		bool is_server_side = (server_fd == __fd);
+		PendingMsg *pend = is_server_side ? &pending_server : &pending_client;
+
+		/* (a) A previous peek already materialized this datagram (monitor ran
+		 *     on it once). Serve it; release the stash only on a consume. */
+		if (pend->ready)
+		{
+			size_t out = pend->len < buf_cap ? pend->len : buf_cap;
+			memcpy(__buf, pend->bytes, out);
+
+			/* restore the stored peer address (no syscall on replay) */
+			if (__addr != NULL && __addr_len != NULL)
+			{
+				if (is_server_side && server_addr != NULL)
+				{
+					memcpy(__addr, server_addr, server_addr_len);
+					*__addr_len = server_addr_len;
+				}
+				else if (!is_server_side && client_addr != NULL)
+				{
+					memcpy(__addr, client_addr, client_addr_len);
+					*__addr_len = client_addr_len;
+				}
+			}
+
+			if (!is_peek)
+			{
+				free(pend->bytes);
+				pend->bytes = NULL;
+				pend->ready = false;
+			}
+			
+			return (ssize_t)out;
+		}
+
+		/* (b) A peek with nothing stashed: materialize the next datagram by
+		 *     performing ONE ordinary consuming read (into a scratch buffer).
+		 *     That reuses the existing branch logic, so the monitor runs once
+		 *     and the queue/address state advances once. Cache the result and
+		 *     serve it WITHOUT consuming, so the later real read still sees it. */
+		if (is_peek)
+		{
+			uint8_t scratch[COAP_MODEL_MAX_DATAGRAM];
+			ssize_t n = CoAP_recvfrom_model(__fd, scratch, sizeof scratch,
+			                                __flags & ~MSG_PEEK, __addr, __addr_len);
+			if (n < 0)
+				return n;
+			pend->bytes = malloc((size_t)n);
+			memcpy(pend->bytes, scratch, (size_t)n);
+			pend->len = (size_t)n;
+			pend->ready = true;
+
+			size_t out = pend->len < buf_cap ? pend->len : buf_cap;
+			memcpy(__buf, scratch, out);
+			return (ssize_t)out;
+		}
+		/* (c) Ordinary consuming read, no peek outstanding: fall through to the
+		 *     original four-branch logic below, unchanged. */
+	}
 
 	if (isfirst_server && server_fd == __fd)
 	{
