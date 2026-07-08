@@ -1,4 +1,5 @@
 #include "klee/Protocols/coap/coap_packets.h"
+#include "klee/klee.h"
 
 #include <string.h>
 #include <stdio.h>
@@ -239,4 +240,35 @@ int serialize_coap_message(const CoapMessage *message,
          * this length rather than the input length. */
         return (int)out_off;
     }
+}
+
+void generate_coap_output(CoapMessage *message)
+{
+    /* Schema = the response fields that classify the reply the SAME way in both
+     * implementations. Each is either a semantic class (type/code) or a
+     * structural count (version, token length, option count, payload length); a
+     * mismatch in any is a genuine behavioral divergence, never a harness
+     * artifact — those counts only differ when the two servers actually shaped
+     * the reply differently.
+     *
+     * messageId is the ONE field EXCLUDED: each harness seeds its own request
+     * MID, so the echoed response MID differs on every path and would flag a
+     * spurious divergence. Absolute token/option/payload BYTES are likewise
+     * omitted — they carry impl-specific text (e.g. diagnostic strings); the
+     * LENGTHS below capture the structural difference without the textual noise.
+     * Whether the response echoes the request token/MID verbatim is a same-run
+     * conformance check (mid-match / token-match monitors), not a schema field. */
+    uint8_t  response_version        = message->header.version;
+    uint8_t  response_type           = message->header.type;
+    uint8_t  response_code           = message->header.code;
+    uint8_t  response_token_length   = message->header.token_length;
+    uint8_t  response_num_options    = (uint8_t)  message->num_options;
+    uint16_t response_payload_length = (uint16_t) message->payload_length;
+
+    klee_print_expr("responseVersion",       response_version,
+                    "responseType",          response_type,
+                    "responseCode",          response_code,
+                    "responseTokenLength",   response_token_length,
+                    "responseNumOptions",    response_num_options,
+                    "responsePayloadLength", response_payload_length);
 }

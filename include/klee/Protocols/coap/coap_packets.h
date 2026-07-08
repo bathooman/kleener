@@ -81,4 +81,9 @@ int serialize_coap_message(const CoapMessage *message,
                            uint8_t *out_buf,
                            size_t out_buf_size);
 
+/* Differential-testing output recorder (defined in coap_packets.c): records a
+ * server response's observable header fields as SMT expressions (test*.resp).
+ * The recording monitors under monitors/diff-testing/ call it on the response. */
+void generate_coap_output(CoapMessage *message);
+
 #endif

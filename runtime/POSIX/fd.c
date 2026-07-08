@@ -1018,8 +1018,17 @@ int fcntl(int fd, int cmd, ...) {
   struct flock *lock;
 
   if (!f) {
-    errno = EBADF;
-    return -1;
+    /* Not a KLEE-modeled fd. The protocol socket models (socket_models.c) use
+     * REAL OS sockets, so a real socket fd can legitimately reach here — e.g.
+     * FreeCoAP's coap_server_create does fcntl(F_GETFL)/fcntl(F_SETFL) to set
+     * O_NONBLOCK and treats failure as fatal. Delegate to the real kernel
+     * instead of failing with EBADF (matches the models' real-socket design;
+     * the kernel ignores the extra arg for cmds like F_GETFL). */
+    long real_arg = 0;
+    va_start(ap, cmd);
+    real_arg = va_arg(ap, long);
+    va_end(ap);
+    return (int)syscall(SYS_fcntl, fd, cmd, real_arg);
   }
 #ifdef F_GETSIG
   if (cmd==F_GETFD || cmd==F_GETFL || cmd==F_GETOWN || cmd==F_GETSIG ||

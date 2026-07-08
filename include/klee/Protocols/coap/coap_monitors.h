@@ -28,6 +28,17 @@
 #define coap_separate_token_ok_requirement 15
 #define coap_mid_spoof_requirement 17
 
+/* ---- Differential-testing RECORDING monitor IDs ----
+ * Numbered from 100 to stay clear of the conformance-monitor range above. A
+ * recording monitor makes one request field symbolic and records the server's
+ * response via generate_coap_output; the verdict is produced offline by the
+ * smt-cross-checker, not by an assert.
+ */
+#define coap_code_diff_test 100
+#define coap_version_diff_test 101
+#define coap_type_diff_test 102
+#define coap_token_length_diff_test 103
+
 /* ---- Monitor dispatch table ----
  * One monitor handle per (requirement, side). Every requirement currently
  * registers the same handle for both sides, since CoAP requirements are
@@ -105,5 +116,13 @@ void is_coap_separate_token_ok(CoapMessage *message, bool is_message_client_gene
  * discards a wrong-MID response or still delivers it. Detection is in the
  * harness response handler. */
 void is_coap_mid_spoofable(CoapMessage *message, bool is_message_client_generated);
+
+/* ---- Differential-testing recording monitors ----
+ * Each makes one request field symbolic, then calls generate_coap_output (see
+ * coap_packets.h) on the response to record the output schema. */
+void code_diff_testing_server(CoapMessage *message, bool is_message_client_generated);
+void version_diff_testing_server(CoapMessage *message, bool is_message_client_generated);
+void type_diff_testing_server(CoapMessage *message, bool is_message_client_generated);
+void token_length_diff_testing_server(CoapMessage *message, bool is_message_client_generated);
 
 #endif

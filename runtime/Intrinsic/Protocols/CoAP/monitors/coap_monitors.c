@@ -43,9 +43,17 @@ coap_monitor_handle set_coap_monitor_handle(int experiment, SIDE side_to_check)
         [coap_separate_token_spoof_requirement] = {is_coap_separate_token_spoof,   is_coap_separate_token_spoof},
         [coap_separate_token_ok_requirement]    = {is_coap_separate_token_ok,      is_coap_separate_token_ok},
         [coap_mid_spoof_requirement]            = {is_coap_mid_spoofable,          is_coap_mid_spoofable},
+
+        /* Differential-testing recording monitors (IDs from 100). Server-side
+         * only: each drives both directions internally via the
+         * is_message_client_generated flag, so the client slot stays NULL. */
+        [coap_code_diff_test]                   = {code_diff_testing_server,        NULL},
+        [coap_version_diff_test]                = {version_diff_testing_server,      NULL},
+        [coap_type_diff_test]                   = {type_diff_testing_server,         NULL},
+        [coap_token_length_diff_test]           = {token_length_diff_testing_server, NULL},
     };
 
-    if (experiment < 0 || experiment > coap_mid_spoof_requirement)
+    if (experiment < 0 || experiment >= (int)(sizeof(table) / sizeof(table[0])))
         return NULL;
 
     const struct entry *e = &table[experiment];
