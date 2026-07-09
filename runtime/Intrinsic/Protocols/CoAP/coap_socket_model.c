@@ -225,23 +225,25 @@ ssize_t CoAP_recvfrom_model(int __fd, void *__buf, size_t __n, int __flags,
 	if (isfirst_server && server_fd == __fd)
 	{
 		Element *item;
-		long recvlen = syscall(SYS_recvfrom, __fd, __buf, __n, __flags, __addr , __addr_len);
 
+		/* Queue is the source of truth; the real SYS_recvfrom is only its
+		 * lockstep shadow and blocks forever on an empty wire. Check the queue
+		 * first so a silent-drop path returns cleanly (mirrors !isfirst). */
+		if (isEmpty(recv_by_server))
+		{
+			printf("\n[Model-log] server queue is empty!\n");
+			return -1;
+		}
+
+		long recvlen = syscall(SYS_recvfrom, __fd, __buf, __n, __flags, __addr , __addr_len);
 		if (recvlen < 0)
 		{
 			printf("\n[Model-log] recvfrom() failed\n");
 			return recvlen;
 		}
-		if (!isEmpty(recv_by_server))
-		{
-			item = dequeue(recv_by_server);
-			__n = item->buffer_size;
-		}
-		else
-		{
-			printf("\n[Model-log] server queue is empty!\n");
-			return -1;
-		}
+
+		item = dequeue(recv_by_server);
+		__n = item->buffer_size;
 
 
 		// Storing the address for the server and the length of it to use in subsequent calls to recvfrom
@@ -276,23 +278,25 @@ ssize_t CoAP_recvfrom_model(int __fd, void *__buf, size_t __n, int __flags,
 	else if (isfirst_client && server_fd != __fd)
 	{
 		Element *item;
-		long recvlen = syscall(SYS_recvfrom, __fd, __buf, __n, __flags, __addr, __addr_len);
 
+		/* Queue is the source of truth; the real SYS_recvfrom is only its
+		 * lockstep shadow and blocks forever on an empty wire. Check the queue
+		 * first so a silent-drop path returns cleanly (mirrors !isfirst). */
+		if (isEmpty(recv_by_client))
+		{
+			printf("\n[Model-log] client queue is empty!\n");
+			return -1;
+		}
+
+		long recvlen = syscall(SYS_recvfrom, __fd, __buf, __n, __flags, __addr, __addr_len);
 		if (recvlen < 0)
 		{
 			printf("\n[Model-log] recvfrom() failed\n");
 			return recvlen;
 		}
-		if (!isEmpty(recv_by_client))
-		{
-			item = dequeue(recv_by_client);
-			__n = item->buffer_size;
-		}
-		else
-		{
-			printf("\n[Model-log] client queue is empty!\n");
-			return -1;
-		}
+
+		item = dequeue(recv_by_client);
+		__n = item->buffer_size;
 
 
 		// Storing the address for the client and the length of it to use in subsequent calls to recvfrom
