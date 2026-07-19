@@ -32,12 +32,17 @@
  * Numbered from 100 to stay clear of the conformance-monitor range above. A
  * recording monitor makes one request field symbolic and records the server's
  * response via generate_coap_output; the verdict is produced offline by the
- * smt-cross-checker, not by an assert.
+ * smt-cross-checker, not by an assert. Each monitor names its symbolic field
+ * "coap_req_*"; that name MUST match across the two implementation runs, or
+ * conjoining their .smt2 constraints ranges over different arrays and means
+ * nothing.
  */
 #define coap_code_diff_test 100
 #define coap_version_diff_test 101
 #define coap_type_diff_test 102
 #define coap_token_length_diff_test 103
+#define coap_mid_diff_test 104
+#define coap_type_code_diff_test 105
 
 /* ---- Monitor dispatch table ----
  * One monitor handle per (requirement, side). Every requirement currently
@@ -124,5 +129,14 @@ void code_diff_testing_server(CoapMessage *message, bool is_message_client_gener
 void version_diff_testing_server(CoapMessage *message, bool is_message_client_generated);
 void type_diff_testing_server(CoapMessage *message, bool is_message_client_generated);
 void token_length_diff_testing_server(CoapMessage *message, bool is_message_client_generated);
+
+/* Makes the request Message ID symbolic (coap_req_mid) and records the response
+ * including responseMessageId, to expose divergences in how servers echo the
+ * Message ID in their reply (RFC 7252 §4.2). */
+void mid_diff_testing_server(CoapMessage *message, bool is_message_client_generated);
+
+/* Makes request type AND code symbolic to explore the type-x-code acceptance
+ * matrix (RFC 7252 §§4.1-4.3); subsumes the Empty-message requirement. */
+void type_code_diff_testing_server(CoapMessage *message, bool is_message_client_generated);
 
 #endif

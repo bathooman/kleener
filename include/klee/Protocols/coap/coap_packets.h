@@ -86,4 +86,9 @@ int serialize_coap_message(const CoapMessage *message,
  * The recording monitors under monitors/diff-testing/ call it on the response. */
 void generate_coap_output(CoapMessage *message);
 
+/* Variant recorder for the MID diff monitor (104): the base schema plus
+ * responseMessageId. Kept separate so the other monitors, which seed a concrete
+ * request MID, never record it and never report a spurious MID divergence. */
+void generate_coap_output_mid(CoapMessage *message);
+
 #endif

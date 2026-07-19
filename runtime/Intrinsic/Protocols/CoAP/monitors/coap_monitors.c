@@ -51,6 +51,8 @@ coap_monitor_handle set_coap_monitor_handle(int experiment, SIDE side_to_check)
         [coap_version_diff_test]                = {version_diff_testing_server,      NULL},
         [coap_type_diff_test]                   = {type_diff_testing_server,         NULL},
         [coap_token_length_diff_test]           = {token_length_diff_testing_server, NULL},
+        [coap_mid_diff_test]                    = {mid_diff_testing_server,          NULL},
+        [coap_type_code_diff_test]              = {type_code_diff_testing_server,    NULL},
     };
 
     if (experiment < 0 || experiment >= (int)(sizeof(table) / sizeof(table[0])))

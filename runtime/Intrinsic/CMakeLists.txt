@@ -92,6 +92,8 @@ set(SRC_FILES
 	Protocols/CoAP/monitors/diff-testing/version-diff-testing.c
 	Protocols/CoAP/monitors/diff-testing/type-diff-testing.c
 	Protocols/CoAP/monitors/diff-testing/token-length-diff-testing.c
+	Protocols/CoAP/monitors/diff-testing/mid-diff-testing.c
+	Protocols/CoAP/monitors/diff-testing/type-code-diff-testing.c
 	# Differential Testing Monitors
 	Protocols/DTLS/monitors/diff-testing/content-type-diff-testing.c
 	Protocols/DTLS/monitors/diff-testing/epoch-diff-testing.c
