@@ -1,7 +1,4 @@
-/* CoAP diff-testing RECORDING monitor: request Type (2 bits: CON/NON/ACK/RST).
- * Injects symbolic type on the request, records the response, terminates.
- * Reply behaviour to each type (ACK expected / none / ACK-or-RST-as-request) is
- * where impls diverge most. The name "coap_req_type" MUST match across both runs. */
+/* Diff-testing monitor: makes request Type symbolic, records the response. */
 
 #include "klee/Protocols/coap/coap_monitors.h"
 #include "klee/Protocols/coap/coap_packets.h"
@@ -12,20 +9,20 @@
 #define INJECTED 1
 #define DONE     2
 
+static int local_state = INIT;
+
 void type_diff_testing_server(CoapMessage *message, bool is_message_client_generated)
 {
-    static int state = INIT;
-
-    if (is_message_client_generated && state == INIT)
+    if (is_message_client_generated && local_state == INIT)
     {
         kleener_make_symbolic(&message->header.type,
                               sizeof(message->header.type),
                               "coap_req_type");
-        state = INJECTED;
+        local_state = INJECTED;
     }
-    else if (!is_message_client_generated && state == INJECTED)
+    else if (!is_message_client_generated && local_state == INJECTED)
     {
         generate_coap_output(message);
-        state = DONE;
+        local_state = DONE;
     }
 }
