@@ -1,4 +1,6 @@
-/* Diff-testing monitor: makes request Message ID and Type symbolic, records response MID (echo check). */
+/* Diff-testing monitor: makes ONLY the request Message ID symbolic and records
+ * the response. The type is left concrete so the Message-ID input is isolated:
+ * any divergence is attributable to the Message ID alone. */
 
 #include "klee/Protocols/coap/coap_monitors.h"
 #include "klee/Protocols/coap/coap_packets.h"
@@ -18,9 +20,6 @@ void mid_diff_testing_server(CoapMessage *message, bool is_message_client_genera
         kleener_make_symbolic(&message->header.message_id,
                               sizeof(message->header.message_id),
                               "coap_req_mid");
-        kleener_make_symbolic(&message->header.type,
-                              sizeof(message->header.type),
-                              "coap_req_type");
         local_state = INJECTED;
     }
     else if (!is_message_client_generated && local_state == INJECTED)

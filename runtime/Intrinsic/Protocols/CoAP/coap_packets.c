@@ -156,10 +156,21 @@ int serialize_coap_message(const CoapMessage *message,
 {
     if (out_buf_size < 4) return -1;
 
-    /* Header */
-    out_buf[0] = (uint8_t)(((message->header.version & 0x03u) << 6) |
-                           ((message->header.type    & 0x03u) << 4) |
-                            (message->header.token_length & 0x0Fu));
+    /* Header. Build byte0 as a select over concrete candidates for the (2-bit)
+     * type so that a symbolic type does not leave token_length (byte0 & 0x0F)
+     * an unfoldable symbolic expression under KLEE -- which otherwise mis-parses
+     * the options and yields a phantom 4.04. KLEE folds a select over constants
+     * with an identical low nibble; the OR-of-shifted-symbolic form does not. */
+    {
+        uint8_t b0_base = (uint8_t)(((message->header.version & 0x03u) << 6) |
+                                    (message->header.token_length & 0x0Fu));
+        uint8_t t = (uint8_t)(message->header.type & 0x03u);
+        
+        out_buf[0] = (t == 0) ? (uint8_t)(b0_base | 0x00u) :
+                     (t == 1) ? (uint8_t)(b0_base | 0x10u) :
+                     (t == 2) ? (uint8_t)(b0_base | 0x20u) :
+                                (uint8_t)(b0_base | 0x30u);
+    }
     out_buf[1] = message->header.code;
     out_buf[2] = (uint8_t)((message->header.message_id >> 8) & 0xFF);
     out_buf[3] = (uint8_t)( message->header.message_id       & 0xFF);
